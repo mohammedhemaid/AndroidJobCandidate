@@ -1,15 +1,17 @@
 package app.storytel.candidate.com;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
+
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -25,11 +27,11 @@ import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class ScrollingActivity extends AppCompatActivity {
+public class ScrollingActivity extends AppCompatActivity implements PostsAdapter.Listener {
     private static final String POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
     private static final String PHOTOS_URL = "https://jsonplaceholder.typicode.com/photos";
     RecyclerView mRecyclerView;
-    PostAdapter mPostAdapter;
+    PostsAdapter mPostsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +42,8 @@ public class ScrollingActivity extends AppCompatActivity {
         mRecyclerView = findViewById(R.id.recycler_view);
         LinearLayoutManager manager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(manager);
-        mPostAdapter = new PostAdapter(Glide.with(this), this);
-        mRecyclerView.setAdapter(mPostAdapter);
+        mPostsAdapter = new PostsAdapter(this);
+        mRecyclerView.setAdapter(mPostsAdapter);
 
         new AsyncTask<Void, Void, PostAndImages>() {
             @Override
@@ -51,8 +53,7 @@ public class ScrollingActivity extends AppCompatActivity {
                 return new PostAndImages(posts, photos);
             }
 
-            private List<Post> getPosts()
-            {
+            private List<Post> getPosts() {
                 List<Post> posts = null;
                 InputStream stream = null;
                 HttpURLConnection urlConnection = null;
@@ -91,8 +92,7 @@ public class ScrollingActivity extends AppCompatActivity {
                 return posts;
             }
 
-            private List<Photo> getPhotos()
-            {
+            private List<Photo> getPhotos() {
                 List<Photo> photos = null;
                 InputStream stream = null;
                 HttpURLConnection urlConnection = null;
@@ -149,10 +149,15 @@ public class ScrollingActivity extends AppCompatActivity {
 
             @Override
             protected void onPostExecute(PostAndImages result) {
-                mPostAdapter.setData(result);
+                mPostsAdapter.setData(result);
             }
 
         }.execute();
+    }
+
+    @Override
+    public void onBodyClick() {
+        startActivity(new Intent(this, DetailsActivity.class));
     }
 
     @Override
