@@ -5,7 +5,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
-import app.storytel.candidate.com.Post
+import app.storytel.candidate.com.postList.Post
 import app.storytel.candidate.com.api.RestRepository
 import app.storytel.candidate.com.api.servicegenerator.RetrofitService.getPostsService
 import app.storytel.candidate.com.api.callbacks.GetPostCommentsCallback

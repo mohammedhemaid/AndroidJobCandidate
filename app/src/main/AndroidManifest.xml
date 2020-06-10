@@ -14,7 +14,7 @@
         android:theme="@style/AppTheme"
         >
         <activity
-            android:name=".ScrollingActivity"
+            android:name=".postList.PostListActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -26,11 +26,11 @@
         <activity
             android:name=".postdetails.DetailsActivity"
             android:label="@string/title_activity_details"
-            android:parentActivityName=".ScrollingActivity"
+            android:parentActivityName=".postList.PostListActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ScrollingActivity" />
+                android:value=".postList.PostListActivity" />
         </activity>
     </application>
 

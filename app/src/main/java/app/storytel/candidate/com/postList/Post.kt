@@ -1,4 +1,4 @@
-package app.storytel.candidate.com
+package app.storytel.candidate.com.postList
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
