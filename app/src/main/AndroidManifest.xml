@@ -33,5 +33,4 @@
                 android:value=".postList.PostListActivity" />
         </activity>
     </application>
-
 </manifest>

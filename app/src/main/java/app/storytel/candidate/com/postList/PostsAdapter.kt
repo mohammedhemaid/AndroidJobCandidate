@@ -5,7 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import app.storytel.candidate.com.databinding.PostItemBinding
+import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
+import java.lang.Exception
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -17,7 +19,7 @@ class PostsAdapter(
         fun onBodyClick(post: Post, imageUrl: String)
     }
 
-    var data: PostAndImages = PostAndImages(ArrayList<Post>(), ArrayList<Photo>())
+    var data: PostAndImages = PostAndImages(ArrayList(), ArrayList())
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -55,8 +57,7 @@ class PostsAdapter(
             post = data.mPosts[adapterPosition]
             title.text = post.title
             body.text = post.body
-            val index = Random().nextInt(data.mPhotos.size - 1)
-            imageUrl = data.mPhotos[index].thumbnailUrl
+            imageUrl = data.mPhotos[adapterPosition].thumbnailUrl
             Picasso.get()
                     .load(imageUrl)
                     .into(image)
