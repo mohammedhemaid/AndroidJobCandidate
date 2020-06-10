@@ -1,4 +1,4 @@
-package app.storytel.candidate.com
+package app.storytel.candidate.com.postList
 
 import android.view.LayoutInflater
 import android.view.View

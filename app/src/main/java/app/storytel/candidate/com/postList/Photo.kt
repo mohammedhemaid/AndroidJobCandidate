@@ -1,0 +1,9 @@
+package app.storytel.candidate.com.postList
+
+data class Photo(
+        val albumId: Int,
+        val id: Int,
+        val title: String,
+        val url: String,
+        val thumbnailUrl: String
+)
