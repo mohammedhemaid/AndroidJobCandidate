@@ -14,6 +14,8 @@ import android.view.MenuItem;
 
 import com.google.gson.Gson;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,6 +28,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
+
+import app.storytel.candidate.com.postdetails.DetailsActivity;
+
+import static app.storytel.candidate.com.postdetails.DetailsActivityKt.EXTRA_POST;
+import static app.storytel.candidate.com.postdetails.DetailsActivityKt.EXTRA_POST_IMAGE;
 
 public class ScrollingActivity extends AppCompatActivity implements PostsAdapter.Listener {
     private static final String POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
@@ -156,8 +163,11 @@ public class ScrollingActivity extends AppCompatActivity implements PostsAdapter
     }
 
     @Override
-    public void onBodyClick() {
-        startActivity(new Intent(this, DetailsActivity.class));
+    public void onBodyClick(@NotNull Post post, @NotNull String imageUrl) {
+        Intent intent = new Intent(this, DetailsActivity.class);
+        intent.putExtra(EXTRA_POST, post);
+        intent.putExtra(EXTRA_POST_IMAGE, imageUrl);
+        startActivity(intent);
     }
 
     @Override

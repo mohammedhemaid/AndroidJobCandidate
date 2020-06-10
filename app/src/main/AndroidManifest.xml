@@ -12,7 +12,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true"
         >
         <activity
             android:name=".ScrollingActivity"
@@ -25,7 +24,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DetailsActivity"
+            android:name=".postdetails.DetailsActivity"
             android:label="@string/title_activity_details"
             android:parentActivityName=".ScrollingActivity"
             android:theme="@style/AppTheme.NoActionBar">

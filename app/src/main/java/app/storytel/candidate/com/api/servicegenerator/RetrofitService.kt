@@ -1,5 +1,6 @@
-package app.storytel.candidate.com.api
+package app.storytel.candidate.com.api.servicegenerator
 
+import app.storytel.candidate.com.api.ApiConstants
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -8,8 +9,8 @@ import java.util.concurrent.TimeUnit
 object RetrofitService {
 
     private var okHttpClient = OkHttpClient.Builder()
-            .readTimeout(5, TimeUnit.SECONDS)
-            .connectTimeout(5, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .connectTimeout(10, TimeUnit.SECONDS)
             .build()
 
     private val retrofit = Retrofit.Builder()
