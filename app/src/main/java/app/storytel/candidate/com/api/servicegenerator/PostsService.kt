@@ -1,6 +1,6 @@
-package app.storytel.candidate.com.api
+package app.storytel.candidate.com.api.servicegenerator
 
-import app.storytel.candidate.com.Comment
+import app.storytel.candidate.com.postdetails.Comment
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path

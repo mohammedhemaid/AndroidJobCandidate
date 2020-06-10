@@ -14,7 +14,7 @@ class PostsAdapter(
 ) : RecyclerView.Adapter<PostsAdapter.PostViewHolder>() {
 
     interface Listener {
-        fun onBodyClick()
+        fun onBodyClick(post: Post, imageUrl: String)
     }
 
     var data: PostAndImages = PostAndImages(ArrayList<Post>(), ArrayList<Photo>())
@@ -30,7 +30,7 @@ class PostsAdapter(
     }
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        holder.loadPosts(position)
+        holder.loadPosts()
     }
 
     override fun getItemCount(): Int {
@@ -44,22 +44,26 @@ class PostsAdapter(
         private val body = itemBinding.body
         private val image = itemBinding.image
 
+        private lateinit var post: Post
+        private lateinit var imageUrl: String
+
         init {
             body.setOnClickListener(this)
         }
 
-        fun loadPosts(position: Int) {
-            title.text = data.mPosts[position].title
-            body.text = data.mPosts[position].body
+        fun loadPosts() {
+            post = data.mPosts[adapterPosition]
+            title.text = post.title
+            body.text = post.body
             val index = Random().nextInt(data.mPhotos.size - 1)
-            val imageUrl = data.mPhotos[index].thumbnailUrl
+            imageUrl = data.mPhotos[index].thumbnailUrl
             Picasso.get()
                     .load(imageUrl)
                     .into(image)
         }
 
         override fun onClick(view: View?) {
-            listener.onBodyClick()
+            listener.onBodyClick(post, imageUrl)
         }
     }
 }
