@@ -1,142 +1,94 @@
 package app.storytel.candidate.com.postList
 
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DividerItemDecoration
 import app.storytel.candidate.com.R
+import app.storytel.candidate.com.api.RestRepository
+import app.storytel.candidate.com.api.callbacks.GetPhotosCallback
+import app.storytel.candidate.com.api.callbacks.GetPostsCallback
+import app.storytel.candidate.com.api.servicegenerator.RetrofitService.getPostsService
+import app.storytel.candidate.com.commondialogs.TimeOutDialog
+import app.storytel.candidate.com.databinding.ActivityPostListBinding
 import app.storytel.candidate.com.postdetails.DetailsActivity
 import app.storytel.candidate.com.postdetails.EXTRA_POST
 import app.storytel.candidate.com.postdetails.EXTRA_POST_IMAGE
-import com.google.gson.Gson
-import java.io.*
-import java.net.HttpURLConnection
-import java.net.MalformedURLException
-import java.net.URL
-import java.util.*
-import javax.net.ssl.HttpsURLConnection
 
-class PostListActivity : AppCompatActivity(), PostsAdapter.Listener {
-    lateinit var mRecyclerView: RecyclerView
-    lateinit var mPostsAdapter: PostsAdapter
+class PostListActivity : AppCompatActivity(), PostsAdapter.Listener,
+        GetPostsCallback.Listener, GetPhotosCallback.Listener {
+
+    private lateinit var binding: ActivityPostListBinding
+    private lateinit var progressBar: ProgressBar
+    private lateinit var mPostsAdapter: PostsAdapter
+    private lateinit var restRepository: RestRepository
+    private lateinit var postsTimeOutDialog: TimeOutDialog
+    private lateinit var photosTimeOutDialog: TimeOutDialog
+    private var callCounter = 0
+    private var posts: List<Post> = ArrayList()
+    private var photos: List<Photo> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_scrolling)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        mRecyclerView = findViewById(R.id.recycler_view)
+        binding = ActivityPostListBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
+        progressBar = binding.progressBar
+
+        val postList = binding.postsList
+        val itemDecorator = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
+        itemDecorator.setDrawable(ContextCompat.getDrawable(this, R.drawable.line_divider)!!)
+        postList.addItemDecoration(itemDecorator)
         mPostsAdapter = PostsAdapter(this)
-        mRecyclerView.setAdapter(mPostsAdapter)
+        postList.adapter = mPostsAdapter
 
-        object : AsyncTask<Void, Void, PostAndImages>() {
-            protected override fun doInBackground(vararg voids: Void): PostAndImages {
-                val posts = posts
-                val photos = photos
-                return PostAndImages(posts!!, photos!!)
-            }
+        restRepository = RestRepository(getPostsService())
+        restRepository.getPosts(this)
+        restRepository.getPhotos(this)
 
-            private val posts: List<Post>?
-                private get() {
-                    var posts: List<Post>? = null
-                    var stream: InputStream? = null
-                    var urlConnection: HttpURLConnection? = null
-                    try {
-                        var result: String? = null
-                        val url = URL(POSTS_URL)
-                        urlConnection = url.openConnection() as HttpURLConnection
-                        urlConnection.connect()
-                        val responseCode = urlConnection!!.responseCode
-                        if (responseCode != HttpsURLConnection.HTTP_OK) {
-                            throw IOException("HTTP error code: $responseCode")
-                        }
-                        stream = urlConnection.inputStream
-                        if (stream != null) {
-                            result = readStream(stream)
-                            val array = Gson().fromJson(result, Array<Post>::class.java)
-                            posts = Arrays.asList(*array)
-                        }
-                    } catch (e: MalformedURLException) {
-                        e.printStackTrace()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    } finally {
-                        if (stream != null) {
-                            try {
-                                stream.close()
-                            } catch (e: IOException) {
-                                e.printStackTrace()
-                            }
-                        }
-                        urlConnection?.disconnect()
-                    }
-                    return posts
-                }
+        postsTimeOutDialog = TimeOutDialog(this) {
+            progressBar.visibility = View.VISIBLE
+            restRepository.getPosts(this)
+        }
+        photosTimeOutDialog = TimeOutDialog(this) {
+            progressBar.visibility = View.VISIBLE
+            restRepository.getPhotos(this)
+        }
+    }
 
-            private val photos: List<Photo>?
-                private get() {
-                    var photos: List<Photo>? = null
-                    var stream: InputStream? = null
-                    var urlConnection: HttpURLConnection? = null
-                    try {
-                        var result: String? = null
-                        val url = URL(PHOTOS_URL)
-                        urlConnection = url.openConnection() as HttpURLConnection
-                        urlConnection!!.connect()
-                        val responseCode = urlConnection!!.responseCode
-                        if (responseCode != HttpsURLConnection.HTTP_OK) {
-                            throw IOException("HTTP error code: $responseCode")
-                        }
-                        stream = urlConnection!!.inputStream
-                        if (stream != null) {
-                            result = readStream(stream)
-                            val array = Gson().fromJson(result, Array<Photo>::class.java)
-                            photos = Arrays.asList(*array)
-                        }
-                    } catch (e: MalformedURLException) {
-                        e.printStackTrace()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    } finally {
-                        if (stream != null) {
-                            try {
-                                stream!!.close()
-                            } catch (e: IOException) {
-                                e.printStackTrace()
-                            }
-                        }
-                        if (urlConnection != null) {
-                            urlConnection!!.disconnect()
-                        }
-                    }
-                    return photos
-                }
+    override fun onPostsSuccess(posts: List<Post>) {
+        callCounter++
+        this.posts = posts
+        setAdapterPosts()
+    }
 
-            /**
-             * Converts the contents of an InputStream to a String.
-             */
-            @Throws(IOException::class, UnsupportedEncodingException::class)
-            fun readStream(stream: InputStream?): String {
-                var reader: Reader? = null
-                reader = InputStreamReader(stream, "UTF-8")
-                val rawBuffer = CharArray(256)
-                var readSize: Int
-                val buffer = StringBuffer()
-                while (reader.read(rawBuffer).also { readSize = it } != -1) {
-                    buffer.append(rawBuffer, 0, readSize)
-                }
-                return buffer.toString()
-            }
+    override fun onPostsFailure(t: Throwable?) {
+        progressBar.visibility = View.GONE
+        postsTimeOutDialog.show()
+    }
 
-            override fun onPostExecute(result: PostAndImages) {
-                mPostsAdapter!!.data = result
-            }
-        }.execute()
+    override fun onPhotosSuccess(photos: List<Photo>) {
+        callCounter++
+        this.photos = photos
+        setAdapterPosts()
+    }
+
+    override fun onPhotosFailure(t: Throwable?) {
+        progressBar.visibility = View.GONE
+        photosTimeOutDialog.show()
+    }
+
+
+    private fun setAdapterPosts() {
+        if (callCounter == 2) {
+            progressBar.visibility = View.GONE
+            mPostsAdapter.data = PostAndImages(posts, photos)
+        }
     }
 
     override fun onBodyClick(post: Post, imageUrl: String) {
@@ -147,7 +99,7 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_scrolling, menu)
+        menuInflater.inflate(R.menu.menu_post_list, menu)
         return true
     }
 
@@ -156,10 +108,5 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener {
         return if (id == R.id.action_settings) {
             true
         } else super.onOptionsItemSelected(item)
-    }
-
-    companion object {
-        private const val POSTS_URL = "https://jsonplaceholder.typicode.com/posts"
-        private const val PHOTOS_URL = "https://jsonplaceholder.typicode.com/photos"
     }
 }

@@ -7,6 +7,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class GetPostCommentsCallback(private val listener: Listener) : Callback<List<Comment>> {
+
     interface Listener {
         fun onCommentsSuccess(comments: List<Comment>)
         fun onCommentFailure(t: Throwable?)
@@ -21,5 +22,4 @@ class GetPostCommentsCallback(private val listener: Listener) : Callback<List<Co
     override fun onFailure(call: Call<List<Comment>>, t: Throwable) {
         listener.onCommentFailure(t)
     }
-
 }
