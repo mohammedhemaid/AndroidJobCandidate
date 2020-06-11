@@ -1,24 +1,21 @@
 package app.storytel.candidate.com.postdetails
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import app.storytel.candidate.com.postList.Post
+import app.storytel.candidate.com.R
 import app.storytel.candidate.com.api.RestRepository
-import app.storytel.candidate.com.api.servicegenerator.RetrofitService.getPostsService
 import app.storytel.candidate.com.api.callbacks.GetPostCommentsCallback
+import app.storytel.candidate.com.api.servicegenerator.RetrofitService.getPostsService
 import app.storytel.candidate.com.commondialogs.TimeOutDialog
 import app.storytel.candidate.com.databinding.ActivityDetailsBinding
+import app.storytel.candidate.com.postList.Post
 import com.squareup.picasso.Picasso
-import java.io.IOException
-import java.net.SocketTimeoutException
-
 
 const val EXTRA_POST = "post"
 const val EXTRA_POST_IMAGE = "postImage"
-private const val TAG = "DetailsActivity"
 
 class DetailsActivity : AppCompatActivity(), GetPostCommentsCallback.Listener {
 
@@ -38,14 +35,15 @@ class DetailsActivity : AppCompatActivity(), GetPostCommentsCallback.Listener {
         bindToolbar()
         binding.details.text = post.body
         progressBar = binding.progressBar
-        val restRepository = RestRepository(getPostsService())
+        onAddCommentClick()
 
         val postId = post.id
+        val restRepository = RestRepository(getPostsService())
+        restRepository.getPostsComments(postId, this)
         timeOutDialog = TimeOutDialog(this) {
             progressBar.visibility = View.VISIBLE
             restRepository.getPostsComments(postId, this)
         }
-        restRepository.getPostsComments(postId, this)
     }
 
     private fun bindToolbar() {
@@ -57,6 +55,12 @@ class DetailsActivity : AppCompatActivity(), GetPostCommentsCallback.Listener {
                 .load(postImage)
                 .into(binding.backdrop)
         binding.collapsingToolbar.title = post.title
+    }
+
+    private fun onAddCommentClick() {
+        binding.addComment.setOnClickListener {
+            Toast.makeText(this, R.string.comment_feature_message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onCommentsSuccess(comments: List<Comment>) {
@@ -83,15 +87,6 @@ class DetailsActivity : AppCompatActivity(), GetPostCommentsCallback.Listener {
     }
 
     override fun onCommentFailure(t: Throwable?) {
-        if (t is SocketTimeoutException) {
-            // "Connection Timeout";
-            Log.d(TAG, "Connection Timeout")
-
-        } else if (t is IOException) {
-            // "Timeout";
-            Log.d(TAG, "Timeout")
-
-        }
         timeOutDialog?.show()
         progressBar.visibility = View.GONE
     }
