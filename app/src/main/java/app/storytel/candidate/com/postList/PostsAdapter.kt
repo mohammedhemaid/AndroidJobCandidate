@@ -5,11 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import app.storytel.candidate.com.databinding.PostItemBinding
-import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
-import java.lang.Exception
-import java.util.*
-import kotlin.collections.ArrayList
 
 class PostsAdapter(
         private val listener: Listener
@@ -32,7 +28,7 @@ class PostsAdapter(
     }
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        holder.loadPosts()
+        holder.loadPosts(position)
     }
 
     override fun getItemCount(): Int {
@@ -53,11 +49,11 @@ class PostsAdapter(
             body.setOnClickListener(this)
         }
 
-        fun loadPosts() {
-            post = data.mPosts[adapterPosition]
+        fun loadPosts(position: Int) {
+            post = data.mPosts[position]
             title.text = post.title
             body.text = post.body
-            imageUrl = data.mPhotos[adapterPosition].thumbnailUrl
+            imageUrl = data.mPhotos[position].thumbnailUrl
             Picasso.get()
                     .load(imageUrl)
                     .into(image)
