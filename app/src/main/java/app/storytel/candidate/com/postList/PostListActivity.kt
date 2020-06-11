@@ -5,10 +5,12 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.RecyclerView
 import app.storytel.candidate.com.R
 import app.storytel.candidate.com.api.RestRepository
 import app.storytel.candidate.com.api.callbacks.GetPhotosCallback
@@ -19,12 +21,15 @@ import app.storytel.candidate.com.databinding.ActivityPostListBinding
 import app.storytel.candidate.com.postdetails.DetailsActivity
 import app.storytel.candidate.com.postdetails.EXTRA_POST
 import app.storytel.candidate.com.postdetails.EXTRA_POST_IMAGE
+import app.storytel.candidate.com.utils.isInternetAvailable
 
 class PostListActivity : AppCompatActivity(), PostsAdapter.Listener,
         GetPostsCallback.Listener, GetPhotosCallback.Listener {
 
     private lateinit var binding: ActivityPostListBinding
     private lateinit var progressBar: ProgressBar
+    private lateinit var notInternet: LinearLayout
+    private lateinit var postList: RecyclerView
     private lateinit var mPostsAdapter: PostsAdapter
     private lateinit var restRepository: RestRepository
     private lateinit var postsTimeOutDialog: TimeOutDialog
@@ -39,17 +44,14 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener,
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         progressBar = binding.progressBar
+        notInternet = binding.noInternet
+        postList = binding.postsList
 
-        val postList = binding.postsList
         val itemDecorator = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
         itemDecorator.setDrawable(ContextCompat.getDrawable(this, R.drawable.line_divider)!!)
         postList.addItemDecoration(itemDecorator)
         mPostsAdapter = PostsAdapter(this)
         postList.adapter = mPostsAdapter
-
-        restRepository = RestRepository(getPostsService())
-        restRepository.getPosts(this)
-        restRepository.getPhotos(this)
 
         postsTimeOutDialog = TimeOutDialog(this) {
             progressBar.visibility = View.VISIBLE
@@ -58,6 +60,23 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener,
         photosTimeOutDialog = TimeOutDialog(this) {
             progressBar.visibility = View.VISIBLE
             restRepository.getPhotos(this)
+        }
+        fetchPosts()
+        onNoInternetRetryClick()
+    }
+
+    private fun fetchPosts() {
+        if (isInternetAvailable(this)) {
+            progressBar.visibility = View.VISIBLE
+            postList.visibility = View.VISIBLE
+            notInternet.visibility = View.GONE
+            restRepository = RestRepository(getPostsService())
+            restRepository.getPosts(this)
+            restRepository.getPhotos(this)
+        } else {
+            postList.visibility = View.GONE
+            progressBar.visibility = View.GONE
+            notInternet.visibility = View.VISIBLE
         }
     }
 
@@ -96,6 +115,12 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener,
         intent.putExtra(EXTRA_POST, post)
         intent.putExtra(EXTRA_POST_IMAGE, imageUrl)
         startActivity(intent)
+    }
+
+    private fun onNoInternetRetryClick() {
+        binding.retry.setOnClickListener {
+            fetchPosts()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

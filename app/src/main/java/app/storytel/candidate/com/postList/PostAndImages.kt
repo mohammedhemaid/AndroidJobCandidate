@@ -1,3 +1,3 @@
 package app.storytel.candidate.com.postList
 
-class PostAndImages(var mPosts: List<Post>, var mPhotos: List<Photo>)
+class PostAndImages(val mPosts: List<Post>, val mPhotos: List<Photo>)
