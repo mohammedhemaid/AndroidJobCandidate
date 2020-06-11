@@ -1,18 +1,14 @@
 # Android Job Candidate
 
-### Task Description
+### What I have done:
 
-Fix all of the TODOs and rewrite the project so it reflects your coding style and preferred way of displaying a list of items and a details page.
-We expect that the assignment will be written in Kotlin
-
-When clicking one of the items in the list, the details of that item should be shown.
-When loading data from the Api, there should be a ProgressBar visible.
-In the case of a connection timeout, there should be a fullscreen error message with a retry button.
-Clicking the retry button should make a new request to the api.
-
-Your solution should be something you would put into production.
-This means that we expect that the app is stable and performs well in all possible use cases
-
-*At the interview we expect you to walk us through the code and explain what you have done.*
-
+- Migrate the project into Android X and updates the libraries.
+- Added Kotlin Dependencies.
+- Convert PostList Adapter to kotlin, and used picasso the show the images.
+- Add Retrofit Client.
+- Convert Post Details to Kotlin with Comment Feature added.
+- Change ScrollActivity name to PostListActivity, convert to Kotlin, and make the requests with retrofit.
+- Change app icon.
+- Added SplashActivity .
+- Removed Menu Settings with all unused code .
 
