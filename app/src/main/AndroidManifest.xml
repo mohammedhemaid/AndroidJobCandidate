@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="app.storytel.candidate.com">
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="app.storytel.candidate.com"
+    >
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
         android:allowBackup="true"
@@ -13,24 +15,33 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         >
+
+        <activity android:name=".splashscreen.SplashActivity"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".postList.PostListActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@style/AppTheme.NoActionBar"
+            />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".postdetails.DetailsActivity"
             android:label="@string/title_activity_details"
             android:parentActivityName=".postList.PostListActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            >
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".postList.PostListActivity" />
+                android:value=".postList.PostListActivity"
+                />
         </activity>
     </application>
 </manifest>
