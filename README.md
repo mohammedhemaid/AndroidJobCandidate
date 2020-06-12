@@ -4,6 +4,7 @@
 
 - Migrate the project into Android X and updates the libraries.
 - Added Kotlin Dependencies.
+- Start using ViewBinding
 - Convert PostList Adapter to kotlin, and used picasso the show the images.
 - Add Retrofit Client.
 - Convert Post Details to Kotlin with Comment Feature added.
