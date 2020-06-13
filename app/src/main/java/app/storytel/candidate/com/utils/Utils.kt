@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 
 @Suppress("DEPRECATION")
 fun isInternetAvailable(context: Context): Boolean {

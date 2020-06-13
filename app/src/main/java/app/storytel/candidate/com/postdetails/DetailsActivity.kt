@@ -28,10 +28,10 @@ class DetailsActivity : AppCompatActivity(), GetPostCommentsCallback.Listener {
         super.onCreate(savedInstanceState)
         binding = ActivityDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        bindToolbar()
 
         val intentExtra = intent.extras
         post = intentExtra!!.getParcelable(EXTRA_POST)!!
+        bindToolbar()
         binding.details.text = post.body
         progressBar = binding.progressBar
         onAddCommentClick()

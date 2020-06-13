@@ -7,34 +7,30 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import app.storytel.candidate.com.R
 import app.storytel.candidate.com.api.RestRepository
-import app.storytel.candidate.com.api.callbacks.GetPhotosCallback
-import app.storytel.candidate.com.api.callbacks.GetPostsCallback
 import app.storytel.candidate.com.api.servicegenerator.RetrofitService.getPostsService
 import app.storytel.candidate.com.commondialogs.TimeOutDialog
 import app.storytel.candidate.com.databinding.ActivityPostListBinding
 import app.storytel.candidate.com.postdetails.DetailsActivity
 import app.storytel.candidate.com.postdetails.EXTRA_POST
 import app.storytel.candidate.com.postdetails.EXTRA_POST_IMAGE
+import app.storytel.candidate.com.utils.ViewModelFactory
 import app.storytel.candidate.com.utils.isInternetAvailable
+import app.storytel.candidate.com.utils.observe
 
-class PostListActivity : AppCompatActivity(), PostsAdapter.Listener,
-        GetPostsCallback.Listener, GetPhotosCallback.Listener {
+class PostListActivity : AppCompatActivity(), PostsAdapter.Listener {
 
     private lateinit var binding: ActivityPostListBinding
+    private lateinit var postListViewModel: PostListViewModel
     private lateinit var progressBar: ProgressBar
-    private lateinit var notInternet: LinearLayout
+    private lateinit var noInternet: LinearLayout
     private lateinit var postList: RecyclerView
     private lateinit var mPostsAdapter: PostsAdapter
-    private lateinit var restRepository: RestRepository
     private lateinit var postsTimeOutDialog: TimeOutDialog
-    private lateinit var photosTimeOutDialog: TimeOutDialog
-    private var callCounter = 0
-    private var posts: List<Post> = ArrayList()
-    private var photos: List<Photo> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +38,7 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener,
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         progressBar = binding.progressBar
-        notInternet = binding.noInternet
+        noInternet = binding.noInternet
         postList = binding.postsList
 
         val itemDecorator = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
@@ -51,61 +47,46 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener,
         mPostsAdapter = PostsAdapter(this)
         postList.adapter = mPostsAdapter
 
+        postListViewModel = ViewModelProvider(
+                this,
+                ViewModelFactory(RestRepository(getPostsService()))
+        ).get(PostListViewModel::class.java)
+        observeViewModel()
+        fetchPostsAndImages()
+
         postsTimeOutDialog = TimeOutDialog(this) {
-            progressBar.visibility = View.VISIBLE
-            restRepository.getPosts(this)
+            fetchPostsAndImages()
         }
-        photosTimeOutDialog = TimeOutDialog(this) {
-            progressBar.visibility = View.VISIBLE
-            restRepository.getPhotos(this)
-        }
-        fetchPosts()
         onNoInternetRetryClick()
     }
 
-    private fun fetchPosts() {
+    private fun fetchPostsAndImages() {
         if (isInternetAvailable(this)) {
+            postListViewModel.getPostsAndImages()
             progressBar.visibility = View.VISIBLE
-            postList.visibility = View.VISIBLE
-            notInternet.visibility = View.GONE
-            restRepository = RestRepository(getPostsService())
-            restRepository.getPosts(this)
-            restRepository.getPhotos(this)
+            noInternet.visibility = View.GONE
         } else {
-            postList.visibility = View.GONE
             progressBar.visibility = View.GONE
-            notInternet.visibility = View.VISIBLE
+            noInternet.visibility = View.VISIBLE
         }
     }
 
-    override fun onPostsSuccess(posts: List<Post>) {
-        callCounter++
-        this.posts = posts
-        setAdapterPosts()
+    private fun observeViewModel() {
+        observe(postListViewModel.postAndImages, ::handlePostList)
+        observe(postListViewModel.progressBar, ::handelProgress)
+        observe(postListViewModel.timeOutDialog, ::handelTimeOut)
     }
 
-    override fun onPostsFailure(t: Throwable?) {
-        progressBar.visibility = View.GONE
+    private fun handlePostList(postsAndImages: PostAndImages) {
+        mPostsAdapter.data = postsAndImages
+    }
+
+    private fun handelTimeOut(showDialog: Boolean) {
         postsTimeOutDialog.show()
     }
 
-    override fun onPhotosSuccess(photos: List<Photo>) {
-        callCounter++
-        this.photos = photos
-        setAdapterPosts()
-    }
-
-    override fun onPhotosFailure(t: Throwable?) {
-        progressBar.visibility = View.GONE
-        photosTimeOutDialog.show()
-    }
-
-
-    private fun setAdapterPosts() {
-        if (callCounter == 2) {
-            progressBar.visibility = View.GONE
-            mPostsAdapter.data = PostAndImages(posts, photos)
-        }
+    private fun handelProgress(showProgress: Boolean) {
+        progressBar.visibility = if (showProgress) View.VISIBLE else View.GONE
     }
 
     override fun onBodyClick(post: Post, imageUrl: String) {
@@ -117,7 +98,7 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener,
 
     private fun onNoInternetRetryClick() {
         binding.retry.setOnClickListener {
-            fetchPosts()
+            fetchPostsAndImages()
         }
     }
 }
