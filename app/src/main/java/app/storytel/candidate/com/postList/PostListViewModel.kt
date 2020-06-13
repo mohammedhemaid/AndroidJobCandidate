@@ -1,6 +1,5 @@
 package app.storytel.candidate.com.postList
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,10 +12,7 @@ import app.storytel.candidate.com.postList.model.PostAndImages
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
-import java.lang.Exception
 import java.net.SocketTimeoutException
-
-private const val TAG = "PostListViewModel"
 
 class PostListViewModel(
         private val restRepository: RestRepository
@@ -25,8 +21,8 @@ class PostListViewModel(
     private val _postAndImages = MutableLiveData<PostAndImages>()
     val postAndImages: LiveData<PostAndImages> = _postAndImages
 
-    private val _progressBar = MutableLiveData<Boolean>()
-    val progressBar: LiveData<Boolean> = _progressBar
+    private val _progress = MutableLiveData<Boolean>()
+    val progress: LiveData<Boolean> = _progress
 
     private val _timeOutDialog = MutableLiveData<Boolean>()
     val timeOutDialog: LiveData<Boolean> = _timeOutDialog
@@ -35,12 +31,13 @@ class PostListViewModel(
         viewModelScope.launch {
             supervisorScope {
                 try {
+                    _progress.value = true
                     val posts = async { restRepository.getPosts() }
                     val photos = async { restRepository.getPhotos() }
                     handlePostList(posts.await(), photos.await())
                 } catch (e: SocketTimeoutException) {
                     _timeOutDialog.value = true
-                    _progressBar.value = false
+                    _progress.value = false
                 }
             }
         }
@@ -48,14 +45,14 @@ class PostListViewModel(
 
     private fun handlePostList(posts: Resource<List<Post>>, photos: Resource<List<Photo>>) {
         when (posts) {
-            is Resource.Loading -> _progressBar.value = true
+            is Resource.Loading -> _progress.value = true
             is Resource.Success -> photos.data?.let {
                 _postAndImages.postValue(PostAndImages(posts.data!!, it))
-                _progressBar.value = false
+                _progress.value = false
             }
             is Resource.DataError -> {
                 _timeOutDialog.value = true
-                _progressBar.value = false
+                _progress.value = false
             }
         }
     }

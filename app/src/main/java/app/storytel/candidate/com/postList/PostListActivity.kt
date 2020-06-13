@@ -4,12 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import app.storytel.candidate.com.R
 import app.storytel.candidate.com.api.RestRepository
 import app.storytel.candidate.com.api.servicegenerator.RetrofitService.getPostsService
@@ -28,7 +28,7 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener {
 
     private lateinit var binding: ActivityPostListBinding
     private lateinit var postListViewModel: PostListViewModel
-    private lateinit var progressBar: ProgressBar
+    private lateinit var refreshPosts: SwipeRefreshLayout
     private lateinit var noInternet: LinearLayout
     private lateinit var postList: RecyclerView
     private lateinit var mPostsAdapter: PostsAdapter
@@ -39,9 +39,9 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener {
         binding = ActivityPostListBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        progressBar = binding.progressBar
         noInternet = binding.noInternet
         postList = binding.postsList
+        refreshPosts = binding.refreshPosts
 
         val itemDecorator = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
         itemDecorator.setDrawable(ContextCompat.getDrawable(this, R.drawable.line_divider)!!)
@@ -60,22 +60,23 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener {
             fetchPostsAndImages()
         }
         onNoInternetRetryClick()
+        refreshPosts.setOnRefreshListener {
+            fetchPostsAndImages()
+        }
     }
 
     private fun fetchPostsAndImages() {
         if (isInternetAvailable(this)) {
             postListViewModel.getPostsAndImages()
-            progressBar.visibility = View.VISIBLE
             noInternet.visibility = View.GONE
         } else {
-            progressBar.visibility = View.GONE
             noInternet.visibility = View.VISIBLE
         }
     }
 
     private fun observeViewModel() {
         observe(postListViewModel.postAndImages, ::handlePostList)
-        observe(postListViewModel.progressBar, ::handelProgress)
+        observe(postListViewModel.progress, ::handelProgress)
         observe(postListViewModel.timeOutDialog, ::handelTimeOut)
     }
 
@@ -88,7 +89,7 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener {
     }
 
     private fun handelProgress(showProgress: Boolean) {
-        progressBar.visibility = if (showProgress) View.VISIBLE else View.GONE
+        refreshPosts.isRefreshing = showProgress
     }
 
     override fun onBodyClick(post: Post, imageUrl: String) {
