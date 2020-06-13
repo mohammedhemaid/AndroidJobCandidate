@@ -5,6 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import app.storytel.candidate.com.databinding.PostItemBinding
+import app.storytel.candidate.com.postList.model.Post
+import app.storytel.candidate.com.postList.model.PostAndImages
 import com.squareup.picasso.Picasso
 
 class PostsAdapter(

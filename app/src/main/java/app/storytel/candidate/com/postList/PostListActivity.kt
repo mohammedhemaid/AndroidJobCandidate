@@ -15,6 +15,8 @@ import app.storytel.candidate.com.api.RestRepository
 import app.storytel.candidate.com.api.servicegenerator.RetrofitService.getPostsService
 import app.storytel.candidate.com.commondialogs.TimeOutDialog
 import app.storytel.candidate.com.databinding.ActivityPostListBinding
+import app.storytel.candidate.com.postList.model.Post
+import app.storytel.candidate.com.postList.model.PostAndImages
 import app.storytel.candidate.com.postdetails.DetailsActivity
 import app.storytel.candidate.com.postdetails.EXTRA_POST
 import app.storytel.candidate.com.postdetails.EXTRA_POST_IMAGE

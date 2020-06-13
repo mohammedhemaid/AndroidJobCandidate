@@ -5,21 +5,24 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import app.storytel.candidate.com.R
 import app.storytel.candidate.com.api.RestRepository
-import app.storytel.candidate.com.api.callbacks.GetPostCommentsCallback
 import app.storytel.candidate.com.api.servicegenerator.RetrofitService.getPostsService
 import app.storytel.candidate.com.commondialogs.TimeOutDialog
 import app.storytel.candidate.com.databinding.ActivityDetailsBinding
-import app.storytel.candidate.com.postList.Post
+import app.storytel.candidate.com.postList.model.Post
+import app.storytel.candidate.com.utils.ViewModelFactory
+import app.storytel.candidate.com.utils.observe
 import com.squareup.picasso.Picasso
 
 const val EXTRA_POST = "post"
 const val EXTRA_POST_IMAGE = "postImage"
 
-class DetailsActivity : AppCompatActivity(), GetPostCommentsCallback.Listener {
+class DetailsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailsBinding
+    private lateinit var detailsViewModel: DetailsViewModel
     private lateinit var progressBar: ProgressBar
     private lateinit var post: Post
     private var timeOutDialog: TimeOutDialog? = null
@@ -37,11 +40,14 @@ class DetailsActivity : AppCompatActivity(), GetPostCommentsCallback.Listener {
         onAddCommentClick()
 
         val postId = post.id
-        val restRepository = RestRepository(getPostsService())
-        restRepository.getPostsComments(postId, this)
+        detailsViewModel = ViewModelProvider(
+                this,
+                ViewModelFactory(RestRepository(getPostsService()))
+        ).get(DetailsViewModel::class.java)
+        observeViewModel()
+        detailsViewModel.getComments(postId)
         timeOutDialog = TimeOutDialog(this) {
-            progressBar.visibility = View.VISIBLE
-            restRepository.getPostsComments(postId, this)
+            detailsViewModel.getComments(postId)
         }
     }
 
@@ -56,13 +62,14 @@ class DetailsActivity : AppCompatActivity(), GetPostCommentsCallback.Listener {
         binding.collapsingToolbar.title = post.title
     }
 
-    private fun onAddCommentClick() {
-        binding.addComment.setOnClickListener {
-            Toast.makeText(this, R.string.comment_feature_message, Toast.LENGTH_SHORT).show()
-        }
+
+    private fun observeViewModel() {
+        observe(detailsViewModel.postAndImages, ::handleComments)
+        observe(detailsViewModel.progressBar, ::handelProgress)
+        observe(detailsViewModel.timeOutDialog, ::handelTimeOut)
     }
 
-    override fun onCommentsSuccess(comments: List<Comment>) {
+    private fun handleComments(comments: List<Comment>) {
         for ((counter, comment) in comments.withIndex()) {
             when (counter) {
                 0 -> {
@@ -82,12 +89,20 @@ class DetailsActivity : AppCompatActivity(), GetPostCommentsCallback.Listener {
                 }
             }
         }
-        progressBar.visibility = View.GONE
     }
 
-    override fun onCommentFailure(t: Throwable?) {
+    private fun handelTimeOut(showDialog: Boolean) {
         timeOutDialog?.show()
-        progressBar.visibility = View.GONE
+    }
+
+    private fun handelProgress(showProgress: Boolean) {
+        progressBar.visibility = if (showProgress) View.VISIBLE else View.GONE
+    }
+
+    private fun onAddCommentClick() {
+        binding.addComment.setOnClickListener {
+            Toast.makeText(this, R.string.comment_feature_message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroy() {

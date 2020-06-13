@@ -1,7 +1,7 @@
 package app.storytel.candidate.com.api.callbacks
 
 import app.storytel.candidate.com.api.ApiConstants
-import app.storytel.candidate.com.postList.Photo
+import app.storytel.candidate.com.postList.model.Photo
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

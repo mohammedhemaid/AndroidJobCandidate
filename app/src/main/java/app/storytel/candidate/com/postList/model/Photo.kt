@@ -1,4 +1,4 @@
-package app.storytel.candidate.com.postList
+package app.storytel.candidate.com.postList.model
 
 data class Photo(
         val albumId: Int,

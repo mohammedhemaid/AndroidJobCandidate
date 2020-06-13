@@ -1,7 +1,7 @@
 package app.storytel.candidate.com.api.servicegenerator
 
-import app.storytel.candidate.com.postList.Photo
-import app.storytel.candidate.com.postList.Post
+import app.storytel.candidate.com.postList.model.Photo
+import app.storytel.candidate.com.postList.model.Post
 import app.storytel.candidate.com.postdetails.Comment
 import retrofit2.Call
 import retrofit2.Response
@@ -16,5 +16,5 @@ interface PostsService {
     suspend fun getPhotos(): Response<List<Photo>>
 
     @GET("posts/{id}/comments")
-    fun getPostComments(@Path("id") postId: Int): Call<List<Comment>>
+    suspend fun getPostComments(@Path("id") postId: Int): Response<List<Comment>>
 }

@@ -1,20 +1,19 @@
 package app.storytel.candidate.com.api
 
-import app.storytel.candidate.com.api.callbacks.GetPostCommentsCallback
 import app.storytel.candidate.com.api.servicegenerator.PostsService
-import app.storytel.candidate.com.postList.Photo
-import app.storytel.candidate.com.postList.Post
+import app.storytel.candidate.com.postList.model.Photo
+import app.storytel.candidate.com.postList.model.Post
 import app.storytel.candidate.com.postdetails.Comment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import retrofit2.Call
 import retrofit2.Response
 import java.io.IOException
+import java.lang.Exception
 
 class RestRepository(private val postsService: PostsService) {
 
     suspend fun getPosts(): Resource<List<Post>> {
-        return when (val response = processCall(postsService::getPosts)) {
+        return when (val response = processCall(postsService.getPosts())) {
             is List<*> -> {
                 Resource.Success(data = response) as Resource<List<Post>>
             }
@@ -25,7 +24,7 @@ class RestRepository(private val postsService: PostsService) {
     }
 
     suspend fun getPhotos(): Resource<List<Photo>> {
-        return when (val response = processCall(postsService::getPhotos)) {
+        return when (val response = processCall(postsService.getPhotos())) {
             is List<*> -> {
                 Resource.Success(data = response) as Resource<List<Photo>>
             }
@@ -35,15 +34,20 @@ class RestRepository(private val postsService: PostsService) {
         }
     }
 
-    fun getPostsComments(postId: Int, listener: GetPostCommentsCallback.Listener) {
-        val getPostCommentsCall: Call<List<Comment>> = postsService.getPostComments(postId)
-        getPostCommentsCall.enqueue(GetPostCommentsCallback(listener))
+    suspend fun getPostsComments(postId: Int): Resource<List<Comment>> {
+        return when (val response = processCall(postsService.getPostComments(postId))) {
+            is List<*> -> {
+                Resource.Success(data = response) as Resource<List<Comment>>
+            }
+            else -> {
+                Resource.DataError(errorCode = response as Int)
+            }
+        }
     }
 
-    private suspend fun processCall(responseCall: suspend () -> Response<*>): Any? {
+    private suspend fun processCall(response: Response<*>): Any? {
         return withContext(Dispatchers.IO) {
             try {
-                val response = responseCall.invoke()
                 val responseCode = response.code()
                 if (response.isSuccessful) {
                     response.body()
@@ -52,6 +56,8 @@ class RestRepository(private val postsService: PostsService) {
                 }
             } catch (e: IOException) {
                 -2
+            } catch (e:Exception){
+                -3
             }
         }
     }
