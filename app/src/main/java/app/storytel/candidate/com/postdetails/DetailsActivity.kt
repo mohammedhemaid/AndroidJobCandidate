@@ -64,7 +64,7 @@ class DetailsActivity : AppCompatActivity() {
 
 
     private fun observeViewModel() {
-        observe(detailsViewModel.postAndImages, ::handleComments)
+        observe(detailsViewModel.comments, ::handleComments)
         observe(detailsViewModel.progressBar, ::handelProgress)
         observe(detailsViewModel.timeOutDialog, ::handelTimeOut)
     }
@@ -91,6 +91,7 @@ class DetailsActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun handelTimeOut(showDialog: Boolean) {
         timeOutDialog?.show()
     }

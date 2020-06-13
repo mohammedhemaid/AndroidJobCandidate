@@ -32,7 +32,6 @@ class PostListViewModel(
     val timeOutDialog: LiveData<Boolean> = _timeOutDialog
 
     fun getPostsAndImages() {
-
         viewModelScope.launch {
             supervisorScope {
                 try {

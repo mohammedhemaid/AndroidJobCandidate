@@ -55,9 +55,7 @@ class RestRepository(private val postsService: PostsService) {
                     responseCode
                 }
             } catch (e: IOException) {
-                -2
-            } catch (e:Exception){
-                -3
+                ApiConstants.NETWORK_ERROR
             }
         }
     }

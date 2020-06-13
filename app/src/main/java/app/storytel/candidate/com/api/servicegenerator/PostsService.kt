@@ -9,6 +9,7 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 
 interface PostsService {
+
     @GET("posts")
     suspend fun getPosts(): Response<List<Post>>
 

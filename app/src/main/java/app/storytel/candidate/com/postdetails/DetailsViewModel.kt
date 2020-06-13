@@ -1,6 +1,5 @@
 package app.storytel.candidate.com.postdetails
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,16 +7,13 @@ import androidx.lifecycle.viewModelScope
 import app.storytel.candidate.com.api.Resource
 import app.storytel.candidate.com.api.RestRepository
 import kotlinx.coroutines.launch
-import java.lang.Exception
-
-private const val TAG = "DetailsViewModel"
 
 class DetailsViewModel(
         private val restRepository: RestRepository
 ) : ViewModel() {
 
-    private val _postAndImages = MutableLiveData<List<Comment>>()
-    val postAndImages: LiveData<List<Comment>> = _postAndImages
+    private val _comments = MutableLiveData<List<Comment>>()
+    val comments: LiveData<List<Comment>> = _comments
 
     private val _progressBar = MutableLiveData<Boolean>()
     val progressBar: LiveData<Boolean> = _progressBar
@@ -26,7 +22,6 @@ class DetailsViewModel(
     val timeOutDialog: LiveData<Boolean> = _timeOutDialog
 
     fun getComments(postId: Int) {
-        Log.d(TAG, "getComments")
         viewModelScope.launch {
             try {
                 handleComments(restRepository.getPostsComments(postId))
@@ -41,7 +36,7 @@ class DetailsViewModel(
         when (comments) {
             is Resource.Loading -> _progressBar.value = true
             is Resource.Success -> comments.data?.let {
-                _postAndImages.postValue(it)
+                _comments.postValue(it)
                 _progressBar.value = false
             }
             is Resource.DataError -> {
