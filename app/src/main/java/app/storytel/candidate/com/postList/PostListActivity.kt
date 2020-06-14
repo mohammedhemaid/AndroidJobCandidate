@@ -2,6 +2,8 @@ package app.storytel.candidate.com.postList
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
@@ -20,9 +22,11 @@ import app.storytel.candidate.com.postList.model.PostAndImages
 import app.storytel.candidate.com.postdetails.DetailsActivity
 import app.storytel.candidate.com.postdetails.EXTRA_POST
 import app.storytel.candidate.com.postdetails.EXTRA_POST_IMAGE
+import app.storytel.candidate.com.settings.SettingsActivity
 import app.storytel.candidate.com.utils.ViewModelFactory
 import app.storytel.candidate.com.utils.isInternetAvailable
 import app.storytel.candidate.com.utils.observe
+
 
 class PostListActivity : AppCompatActivity(), PostsAdapter.Listener {
 
@@ -31,7 +35,7 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener {
     private lateinit var refreshPosts: SwipeRefreshLayout
     private lateinit var noInternet: LinearLayout
     private lateinit var postList: RecyclerView
-    private lateinit var mPostsAdapter: PostsAdapter
+    private lateinit var postsAdapter: PostsAdapter
     private lateinit var postsTimeOutDialog: TimeOutDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,8 +50,8 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener {
         val itemDecorator = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
         itemDecorator.setDrawable(ContextCompat.getDrawable(this, R.drawable.line_divider)!!)
         postList.addItemDecoration(itemDecorator)
-        mPostsAdapter = PostsAdapter(this)
-        postList.adapter = mPostsAdapter
+        postsAdapter = PostsAdapter(this)
+        postList.adapter = postsAdapter
 
         postListViewModel = ViewModelProvider(
                 this,
@@ -70,7 +74,8 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener {
             postListViewModel.getPostsAndImages()
             noInternet.visibility = View.GONE
         } else {
-            noInternet.visibility = View.VISIBLE
+            noInternet.visibility = if (postsAdapter.itemCount == 0) View.VISIBLE else View.GONE
+            refreshPosts.isRefreshing = false
         }
     }
 
@@ -81,7 +86,7 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener {
     }
 
     private fun handlePostList(postsAndImages: PostAndImages) {
-        mPostsAdapter.data = postsAndImages
+        postsAdapter.data = postsAndImages
     }
 
     private fun handelTimeOut(showDialog: Boolean) {
@@ -103,5 +108,18 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener {
         binding.retry.setOnClickListener {
             fetchPostsAndImages()
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_scrolling, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id: Int = item.itemId
+        return if (id == R.id.action_settings) {
+            startActivity(Intent(this, SettingsActivity::class.java))
+            true
+        } else super.onOptionsItemSelected(item)
     }
 }

@@ -9,4 +9,5 @@
     <string name="you_re_offline">You\'re offline</string>
     <string name="comment_feature_message">Comment Feature is not implemented yet</string>
     <string name="post_image">Post Image</string>
+    <string name="dark_mode">Dark Mode</string>
 </resources>

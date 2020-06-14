@@ -24,6 +24,7 @@ class DetailsViewModel(
     fun getComments(postId: Int) {
         viewModelScope.launch {
             try {
+                _progressBar.value = true
                 handleComments(restRepository.getPostsComments(postId))
             } catch (e: Exception) {
                 _progressBar.value = false

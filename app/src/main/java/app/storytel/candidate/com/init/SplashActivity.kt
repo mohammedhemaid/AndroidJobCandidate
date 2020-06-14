@@ -1,4 +1,4 @@
-package app.storytel.candidate.com.splashscreen
+package app.storytel.candidate.com.init
 
 import android.content.Intent
 import android.os.Bundle

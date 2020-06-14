@@ -6,6 +6,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/screenBackground"
     android:padding="8dp"
     >
 
@@ -19,7 +20,7 @@
         android:scaleType="centerCrop"
         tools:background="@color/colorPrimary"
         app:civ_border_width="2dp"
-        app:civ_border_color="@color/line_divider_color"
+        app:civ_border_color="@color/lineDividerColor"
         />
 
     <LinearLayout

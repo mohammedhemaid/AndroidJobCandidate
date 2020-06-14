@@ -5,6 +5,6 @@
     <color name="colorAccent">#FF5c28</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="screenBackground">@color/white</color>
+    <color name="screenBackground">#363636</color>
     <color name="lineDividerColor">#E0E0E0</color>
 </resources>
