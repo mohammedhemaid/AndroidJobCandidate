@@ -1,5 +1,7 @@
 # Android Job Candidate
 
+## MVC Architecture
+
 ### What I have done:
 
 - Migrate the project into Android X and updates the libraries.
