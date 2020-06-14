@@ -35,7 +35,6 @@ class DetailsViewModel(
 
     private fun handleComments(comments: Resource<List<Comment>>) {
         when (comments) {
-            is Resource.Loading -> _progressBar.value = true
             is Resource.Success -> comments.data?.let {
                 _comments.postValue(it)
                 _progressBar.value = false

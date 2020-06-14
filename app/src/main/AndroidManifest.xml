@@ -16,7 +16,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         >
-        <activity android:name=".settings.SettingsActivity"></activity>
         <activity
             android:name=".init.SplashActivity"
             android:theme="@style/SplashTheme"
@@ -43,6 +42,6 @@
                 android:value=".postList.PostListActivity"
                 />
         </activity>
+        <activity android:name=".settings.SettingsActivity"/>
     </application>
-
 </manifest>

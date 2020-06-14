@@ -8,7 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 import java.io.IOException
-import java.lang.Exception
 
 class RestRepository(private val postsService: PostsService) {
 

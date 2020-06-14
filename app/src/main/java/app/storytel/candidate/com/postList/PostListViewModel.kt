@@ -45,7 +45,6 @@ class PostListViewModel(
 
     private fun handlePostList(posts: Resource<List<Post>>, photos: Resource<List<Photo>>) {
         when (posts) {
-            is Resource.Loading -> _progress.value = true
             is Resource.Success -> photos.data?.let {
                 _postAndImages.postValue(PostAndImages(posts.data!!, it))
                 _progress.value = false
