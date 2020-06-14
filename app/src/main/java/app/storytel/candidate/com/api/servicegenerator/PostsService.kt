@@ -8,6 +8,7 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 
 interface PostsService {
+
     @GET("posts")
     fun getPosts(): Call<List<Post>>
 
