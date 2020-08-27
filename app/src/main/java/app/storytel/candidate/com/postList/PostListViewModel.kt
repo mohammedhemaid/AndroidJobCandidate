@@ -1,5 +1,7 @@
 package app.storytel.candidate.com.postList
 
+import android.content.Context
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,17 +11,22 @@ import app.storytel.candidate.com.api.RestRepository
 import app.storytel.candidate.com.postList.model.Photo
 import app.storytel.candidate.com.postList.model.Post
 import app.storytel.candidate.com.postList.model.PostAndImages
+import app.storytel.candidate.com.utils.isInternetAvailable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import java.net.SocketTimeoutException
 
 class PostListViewModel(
+        private val context: Context,
         private val restRepository: RestRepository
 ) : ViewModel() {
 
     private val _postAndImages = MutableLiveData<PostAndImages>()
     val postAndImages: LiveData<PostAndImages> = _postAndImages
+
+    private val _notInternet = MutableLiveData<Boolean>()
+    val notInternet: LiveData<Boolean> = _notInternet
 
     private val _progress = MutableLiveData<Boolean>()
     val progress: LiveData<Boolean> = _progress
@@ -27,7 +34,20 @@ class PostListViewModel(
     private val _timeOutDialog = MutableLiveData<Boolean>()
     val timeOutDialog: LiveData<Boolean> = _timeOutDialog
 
-    fun getPostsAndImages() {
+    init {
+        fetchPostsAndImages()
+    }
+
+    fun fetchPostsAndImages() {
+        if (isInternetAvailable(context)) {
+            getPostsAndImages()
+            _notInternet.value = false
+        } else {
+            _notInternet.value = true
+        }
+    }
+
+    private fun getPostsAndImages() {
         viewModelScope.launch {
             supervisorScope {
                 try {

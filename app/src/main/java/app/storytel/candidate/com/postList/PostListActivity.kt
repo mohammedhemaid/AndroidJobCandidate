@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
@@ -55,38 +56,32 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener {
 
         postListViewModel = ViewModelProvider(
                 this,
-                ViewModelFactory(RestRepository(getPostsService()))
+                ViewModelFactory(this, RestRepository(getPostsService()))
         ).get(PostListViewModel::class.java)
         observeViewModel()
-        fetchPostsAndImages()
 
         postsTimeOutDialog = TimeOutDialog(this) {
-            fetchPostsAndImages()
+            postListViewModel.fetchPostsAndImages()
         }
         onNoInternetRetryClick()
         refreshPosts.setOnRefreshListener {
-            fetchPostsAndImages()
-        }
-    }
-
-    private fun fetchPostsAndImages() {
-        if (isInternetAvailable(this)) {
-            postListViewModel.getPostsAndImages()
-            noInternet.visibility = View.GONE
-        } else {
-            noInternet.visibility = if (postsAdapter.itemCount == 0) View.VISIBLE else View.GONE
-            refreshPosts.isRefreshing = false
+            postListViewModel.fetchPostsAndImages()
         }
     }
 
     private fun observeViewModel() {
         observe(postListViewModel.postAndImages, ::handlePostList)
         observe(postListViewModel.progress, ::handelProgress)
+        observe(postListViewModel.notInternet, ::handelNoInternet)
         observe(postListViewModel.timeOutDialog, ::handelTimeOut)
     }
 
     private fun handlePostList(postsAndImages: PostAndImages) {
         postsAdapter.data = postsAndImages
+    }
+
+    private fun handelNoInternet(noInternet: Boolean) {
+        this.noInternet.isVisible = noInternet
     }
 
     private fun handelTimeOut(showDialog: Boolean) {
@@ -106,7 +101,7 @@ class PostListActivity : AppCompatActivity(), PostsAdapter.Listener {
 
     private fun onNoInternetRetryClick() {
         binding.retry.setOnClickListener {
-            fetchPostsAndImages()
+            postListViewModel.fetchPostsAndImages()
         }
     }
 

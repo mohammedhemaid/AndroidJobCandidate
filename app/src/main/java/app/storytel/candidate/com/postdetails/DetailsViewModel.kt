@@ -9,6 +9,7 @@ import app.storytel.candidate.com.api.RestRepository
 import kotlinx.coroutines.launch
 
 class DetailsViewModel(
+        postId: Int,
         private val restRepository: RestRepository
 ) : ViewModel() {
 
@@ -21,13 +22,16 @@ class DetailsViewModel(
     private val _timeOutDialog = MutableLiveData<Boolean>()
     val timeOutDialog: LiveData<Boolean> = _timeOutDialog
 
+    init {
+        getComments(postId)
+    }
+
     fun getComments(postId: Int) {
         viewModelScope.launch {
             try {
                 _progressBar.value = true
                 handleComments(restRepository.getPostsComments(postId))
             } catch (e: Exception) {
-                _progressBar.value = false
                 _timeOutDialog.value = true
             }
         }

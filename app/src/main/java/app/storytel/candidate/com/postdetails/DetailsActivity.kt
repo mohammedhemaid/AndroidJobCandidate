@@ -12,7 +12,6 @@ import app.storytel.candidate.com.api.servicegenerator.RetrofitService.getPostsS
 import app.storytel.candidate.com.commondialogs.TimeOutDialog
 import app.storytel.candidate.com.databinding.ActivityDetailsBinding
 import app.storytel.candidate.com.postList.model.Post
-import app.storytel.candidate.com.utils.ViewModelFactory
 import app.storytel.candidate.com.utils.observe
 import com.squareup.picasso.Picasso
 
@@ -42,10 +41,9 @@ class DetailsActivity : AppCompatActivity() {
         val postId = post.id
         detailsViewModel = ViewModelProvider(
                 this,
-                ViewModelFactory(RestRepository(getPostsService()))
+                DetailsViewModelFactory(postId, RestRepository(getPostsService()))
         ).get(DetailsViewModel::class.java)
         observeViewModel()
-        detailsViewModel.getComments(postId)
         timeOutDialog = TimeOutDialog(this) {
             detailsViewModel.getComments(postId)
         }
@@ -91,9 +89,9 @@ class DetailsActivity : AppCompatActivity() {
         }
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    private fun handelTimeOut(showDialog: Boolean) {
-        timeOutDialog?.show()
+    private fun handelTimeOut(hideDialog: Boolean) {
+        if (!hideDialog)
+            timeOutDialog?.show()
     }
 
     private fun handelProgress(showProgress: Boolean) {
